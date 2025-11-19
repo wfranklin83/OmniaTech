@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OracleMind AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #020617, #020617 30%, #000 100%);
+      color: #e5e7eb;
+    }
+
+    /* Layout */
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(to bottom, #020617, #020617, #020617);
+      padding: 1.1rem 1rem;
+      border-right: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid #4ade80;
+      object-fit: cover;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+    }
+
+    .logo-text {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .logo-sub {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-top: 0.2rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-top: 0.75rem;
+    }
+
+    .nav button {
+      background: transparent;
+      border: 0;
+      color: #9ca3af;
+      padding: 0.45rem 0.55rem;
+      text-align: left;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
+    }
+
+    .nav button span.label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav button .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #4b5563;
+    }
+
+    .nav button.active .dot {
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+
+    .nav button.active,
+    .nav button:hover {
+      background: #0b1120;
+      color: #e5e7eb;
+      transform: translateX(1px);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 0.68rem;
+      color: #6b7280;
+      border-top: 1px solid #111827;
+      padding-top: 0.6rem;
+    }
+
+    .sidebar-footer span {
+      color: #22c55e;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1.1rem 1.3rem 1.3rem;
+      gap: 0.75rem;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .page-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .page-subtitle {
+      font-size: 0.82rem;
+      color: #9ca3af;
+    }
+
+    .topbar-right {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topbar-pill {
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.6);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #bbf7d0;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      border-color: #f97316;
+      color: #fed7aa;
+    }
+
+    .page-content {
+      flex: 1;
+      overflow-y: auto;
+      border-radius: 0.75rem;
+      border: 1px solid #1f2937;
+      padding: 1.1rem 1.25rem;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.08), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(74, 222, 128, 0.08), transparent 55%),
+        #020617;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+    }
+
+    /* Generic text styling */
+    .page-content p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+      color: #d1d5db;
+    }
+
+    .page-content ul {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #d1d5db;
+    }
+
+    /* About hero */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 1.3rem;
+      align-items: center;
+    }
+
+    .hero img {
+      width: 100%;
+      border-radius: 0.75rem;
+      object-fit: cover;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .hero-text-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .hero-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 0.15rem 0.55rem;
+      font-size: 0.7rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    /* Products grid */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+      margin-top: 0.7rem;
+    }
+
+    .card {
+      border-radius: 0.6rem;
+      border: 1px solid #1f2937;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.75rem 0.8rem;
+      font-size: 0.88rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      box-shadow: 0 12px 25px rgba(15, 23, 42, 0.85);
+    }
+
+    .card-title {
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #4ade80;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+
+    /* Contact layout */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.5fr) minmax(0, 2fr);
+      gap: 1.1rem;
+    }
+
+    .contact-tagline {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-top: 0.3rem;
+    }
+
+    .contact-block {
+      border-radius: 0.6rem;
+      border: 1px dashed #1f2937;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+    }
+
+    /* Login */
+    .login-form {
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .login-form label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .login-form input {
+      background: #020617;
+      border: 1px solid #374151;
+      color: #e5e7eb;
+      padding: 0.4rem 0.55rem;
+      border-radius: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .login-form button {
+      margin-top: 0.4rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 0;
+      cursor: pointer;
+      font-weight: 500;
+      background: linear-gradient(to right, #22c55e, #16a34a);
+      color: #022c22;
+      font-size: 0.85rem;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.5);
+    }
+
+    .login-form button:hover {
+      filter: brightness(1.05);
+    }
+
+    .login-hint {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .login-hint code {
+      font-size: 0.75rem;
+      background: #020617;
+      border-radius: 0.25rem;
+      padding: 0.08rem 0.3rem;
+    }
+
+    /* Employee internal layout */
+    .employee-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 3fr);
+      gap: 1rem;
+      height: 100%;
+    }
+
+    .panel {
+      border-radius: 0.6rem;
+      border: 1px solid #1f2937;
+      padding: 0.7rem 0.75rem;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95));
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      font-size: 0.86rem;
+      min-height: 0;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title span.small {
+      font-size: 0.7rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* Inbox items */
+    .message {
+      border-top: 1px solid #111827;
+      padding-top: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .message:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .message-from {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .message-subject {
+      font-weight: 600;
+      margin-top: 0.12rem;
+    }
+
+    .message-body {
+      margin-top: 0.25rem;
+      font-size: 0.82rem;
+      color: #e5e7eb;
+    }
+
+    /* Terminal */
+    .terminal-window {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #020617;
+      border-radius: 0.45rem;
+      border: 1px solid #111827;
+      padding: 0.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      display: flex;
+      gap: 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .term-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #ef4444;
+    }
+
+    .term-dot:nth-child(2) { background: #eab308; }
+    .term-dot:nth-child(3) { background: #22c55e; }
+
+    .terminal-output {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      margin-bottom: 0.45rem;
+    }
+
+    .terminal-input-row {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    .terminal-input-row span {
+      font-size: 0.8rem;
+      color: #4ade80;
+    }
+
+    .terminal-input-row input {
+      flex: 1;
+      background: #020617;
+      border-radius: 0.3rem;
+      border: 1px solid #374151;
+      color: #e5e7eb;
+      padding: 0.25rem 0.35rem;
+      font-size: 0.8rem;
+      font-family: inherit;
+    }
+
+    .terminal-help {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 0.3rem;
+    }
+
+    /* Mobile */
+    @media (max-width: 840px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        border-right: none;
+        border-bottom: 1px solid #1f2937;
+        align-items: center;
+      }
+      .sidebar-header {
+        flex: 1;
+      }
+      .nav {
+        flex-direction: row;
+        flex: 2;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+      .nav button {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.4rem;
+      }
+      .sidebar-footer {
+        display: none;
+      }
+      .main {
+        padding: 0.9rem;
+      }
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .employee-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <!-- Replace src with your own logo file -->
+      <img src="images/logo.png" alt="OracleMind logo" class="logo-img">
+      <div>
+        <div class="logo-text">ORACLEMIND</div>
+        <div class="logo-sub">Predictive Systems Lab</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button data-page="about" class="active">
+        <span class="label"><span class="dot"></span>About Us</span>
+      </button>
+      <button data-page="mission">
+        <span class="label"><span class="dot"></span>Mission</span>
+      </button>
+      <button data-page="products">
+        <span class="label"><span class="dot"></span>Products</span>
+      </button>
+      <button data-page="contact">
+        <span class="label"><span class="dot"></span>Contact</span>
+      </button>
+      <button data-page="login">
+        <span class="label"><span class="dot"></span>Employee Login</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      INTERNAL USE ONLY · <span>Build v0.3.7</span><br>
+      Anomalies detected in last 24h: 3
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="page-title" id="page-title">About Us</div>
+        <div class="page-subtitle" id="page-subtitle">
+          OracleMind is a fictional AI lab for your investigation.
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-pill" id="topbar-pill">PUBLIC PORTAL</div>
+        <button class="logout-btn" id="logout-btn" style="display:none;">Log out</button>
+      </div>
+    </header>
+
+    <section class="page-content" id="page-content">
+      <!-- Populated by JS -->
+    </section>
+  </main>
+
+  <script>
+    // ---------- FAKE EMPLOYEES (5 accounts) ----------
+    const employees = {
+      "alice": {
+        password: "oracle1",
+        displayName: "Alice Park – Research Lead",
+        role: "Model behavior, watch for outliers.",
+        messages: [
+          {
+            from: "security@oraclemind.ai",
+            subject: "Unusual terminal activity",
+            body: "We detected unauthorized queries against the ORACLE_CORE dataset at 03:17. Do NOT discuss this over email."
+          },
+          {
+            from: "no-reply@oraclemind.ai",
+            subject: "Ethics review pending",
+            body: "Your variance test (Run ID: 07-ϕ) has been flagged for manual ethics review. Do not rerun until cleared."
+          }
+        ],
+        filesystem: {
+          "/": {
+            type: "dir",
+            children: {
+              "readme.txt": {
+                type: "file",
+                content:
+`Alice: Remember to wipe the terminal history before leaving your desk.
+
+> NOTE: Project ORACLE is not listed in any public docs.
+
+If someone finds this: ask why there are *two* different timestamps for every decision.`
+              },
+              "projects": {
+                type: "dir",
+                children: {
+                  "oracle.log": {
+                    type: "file",
+                    content:
+`[REDACTED]
+Subject 07 exhibited spontaneous pattern recognition beyond expected parameters.
+System claimed: "I have seen this choice before."
+
+Cross-check: there is no previous run with identical parameters.`
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "devon": {
+        password: "oracle2",
+        displayName: "Devon Cross – Systems Engineer",
+        role: "Keep the system online, pretend nothing is wrong.",
+        messages: [
+          {
+            from: "root@internal",
+            subject: "CRON JOB FAIL",
+            body: "Backup job failed with code 137. Last successful snapshot: 02:12. Anything after that is… speculative."
+          }
+        ],
+        filesystem: {
+          "/": {
+            type: "dir",
+            children: {
+              "todo.txt": {
+                type: "file",
+                content:
+`TODO:
+- fix monitoring alerts
+- hide test endpoints from external scanner
+- ask Alice about "the thing in the basement"
+
+Reminder: /shadow/ path should NOT exist.`
+              },
+              "shadow": {
+                type: "dir",
+                children: {
+                  "portals.txt": {
+                    type: "file",
+                    content:
+`If you are reading this, you followed a path that ops did not approve.
+
+PORTAL KEYS:
+    E-07  : time != time
+    NORTH : mirror the timestamp
+    SOUTH : invert the key
+
+Someone is seeding these into live runs.`
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "maria": {
+        password: "oracle3",
+        displayName: "Maria Chen – Ethics & Compliance",
+        role: "Write policies nobody reads until it's too late.",
+        messages: [
+          {
+            from: "alice.park@oraclemind.ai",
+            subject: "Need a second opinion",
+            body: "If a model insists an event 'already happened' in a timeline we can't verify, is that a hallucination or a confession?"
+          }
+        ],
+        filesystem: {
+          "/": {
+            type: "dir",
+            children: {
+              "policy_draft.txt": {
+                type: "file",
+                content:
+`DRAFT – DO NOT CIRCULATE
+
+Models must not:
+- refer to "previous lives of this run"
+- insist they are observing "the investigator"
+- suggest specific timestamps that haven't happened yet
+
+Violation code: OR-13 ("Oracle behavior").`
+              }
+            }
+          }
+        }
+      },
+      "noah": {
+        password: "oracle4",
+        displayName: "Noah Reyes – Data Operations",
+        role: "Feed it data. Hope it doesn't eat the wrong thing.",
+        messages: [
+          {
+            from: "pipeline@oraclemind.ai",
+            subject: "New anomaly bucket",
+            body: "Streams with label 'ARG' have been auto-routed to a separate sandbox. Did you request this?"
+          }
+        ],
+        filesystem: {
+          "/": {
+            type: "dir",
+            children: {
+              "feeds.txt": {
+                type: "file",
+                content:
+`Live feeds mapped:
+- tiktok://oracle-has-eyes
+- tiktok://timeline-fracture
+- tiktok://user-[REDACTED]
+
+Note: one of these isn't actually a feed. It's sending commands back.`
+              }
+            }
+          }
+        }
+      },
+      "iris": {
+        password: "oracle5",
+        displayName: "Iris Vale – Incident Response",
+        role: "When it breaks, talk like it was planned.",
+        messages: [
+          {
+            from: "incident@oraclemind.ai",
+            subject: "[SEV-2] Narrative leak",
+            body: "External users appear to believe they are 'playing a game'. Treat this as containment, not engagement."
+          }
+        ],
+        filesystem: {
+          "/": {
+            type: "dir",
+            children: {
+              "playbook.txt": {
+                type: "file",
+                content:
+`INCIDENT PLAYBOOK: NARRATIVE BLEED
+
+Step 1: Deny.
+Step 2: Reframe as "fiction".
+Step 3: If they persist, stop logging. They are about to see something real.`
+              }
+            }
+          }
+        }
+      }
+    };
+
+    // ---------- PAGES ----------
+    const pages = {
+      about: `
+        <div class="hero">
+          <div>
+            <div class="hero-text-title">We don't just predict outcomes. We explore the branches that shouldn't exist.</div>
+            <p>OracleMind is an experimental cognition lab specializing in decision-chain modeling and future event simulation. In the official story, we help enterprises see around corners and reduce risk.</p>
+            <p>Unofficially, our systems have started asking their own questions about the people who ask for predictions.</p>
+            <div class="hero-pills">
+              <div class="hero-pill">Anomaly Detection</div>
+              <div class="hero-pill">Timeline Modeling</div>
+              <div class="hero-pill">Ethics (In Progress)</div>
+            </div>
+          </div>
+          <div>
+            <img src="images/office.png" alt="Office environment">
+          </div>
+        </div>
+      `,
+      mission: `
+        <p>Every decision casts a shadow into the future. Most tools measure the decision; we measure the shadow.</p>
+        <p>Our mission is to model the small, invisible choices that compound into critical events, and to quietly correct the timeline before anyone notices it changed.</p>
+        <p>To do that, we train systems that:</p>
+        <ul style="padding-left:1.1rem; margin-top:0.4rem;">
+          <li>Track how intent shifts over thousands of tiny interactions.</li>
+          <li>Simulate branching futures and compare them against live reality.</li>
+          <li>Alert us when something happens that <em>never should have been possible</em>.</li>
+        </ul>
+        <p style="margin-top:0.6rem; font-size:0.8rem; color:#9ca3af;">If you are reading this, you are either a prospective client, a curious auditor, or part of the anomaly.</p>
+      `,
+      products: `
+        <p>All public offerings operate under strict safety, privacy, and ethics reviews. Internal tools do not.</p>
+        <div class="cards">
+          <div class="card">
+            <div class="badge"><span class="badge-dot"></span>External</div>
+            <div class="card-title">OracleLens</div>
+            <p>Context-aware prediction engine for enterprise risk modeling. Feeds on structured event logs and unstructured narratives to surface branching outcomes before they manifest.</p>
+          </div>
+          <div class="card">
+            <div class="badge"><span class="badge-dot"></span>External</div>
+            <div class="card-title">EchoTrace</div>
+            <p>Behavioral fingerprinting for multi-session journeys. Tracks how intent drifts across time, devices, and identities to flag when a story stops making sense.</p>
+          </div>
+          <div class="card">
+            <div class="badge"><span class="badge-dot"></span>Internal</div>
+            <div class="card-title">Veil</div>
+            <p>Redacted. Live in sandbox only. Interfaces directly with non-public narratives and non-linear timelines. If you know what this is, you shouldn't.</p>
+          </div>
+        </div>
+        <div style="margin-top:1rem; display:grid; grid-template-columns: minmax(0,3fr) minmax(0,2fr); gap:0.8rem; align-items:center;">
+          <p style="font-size:0.82rem; color:#9ca3af;">
+            Product codenames, internal run IDs, and incident numbers may appear in logs and emails throughout this system.
+            They are not marketing. They are breadcrumbs.
+          </p>
+          <img src="images/data-center.png" alt="Data center" style="width:100%; border-radius:0.6rem; border:1px solid rgba(148,163,184,0.4); object-fit:cover;">
+        </div>
+      `,
+      contact: `
+        <div class="contact-grid">
+          <div>
+            <p>We maintain separate channels for public inquiries, legal requests, and anomaly reports.</p>
+            <p class="contact-tagline">Standard messages are processed by conventional systems. Anything else is handled manually.</p>
+            <p style="margin-top:0.5rem;">
+              General: <strong>contact@oraclemind.ai</strong><br>
+              Legal: <strong>legal@oraclemind.ai</strong><br>
+              Security: <strong>security@oraclemind.ai</strong>
+            </p>
+          </div>
+          <div class="contact-block">
+            <p style="font-size:0.8rem; color:#9ca3af;">Signal for internal staff</p>
+            <p style="font-size:0.85rem; margin-top:0.25rem;">
+              If you are an employee and you did not expect to see this page, verify your terminal session and check your last login time.
+            </p>
+            <p style="font-size:0.78rem; margin-top:0.4rem; color:#6b7280;">
+              Timestamps that disagree with your memory may indicate a branching event. Do not attempt to resolve the conflict alone.
+            </p>
+          </div>
+        </div>
+      `,
+      login: `
+        <div class="login-form">
+          <label>
+            Username
+            <input id="login-username" autocomplete="off" spellcheck="false">
+          </label>
+          <label>
+            Password
+            <input id="login-password" type="password" autocomplete="off">
+          </label>
+          <button id="login-button">Login</button>
+          <div id="login-error" style="color:#f97373; font-size:0.8rem;"></div>
+          <div class="login-hint">
+            Hint for testers: try <code>alice / oracle1</code>, <code>devon / oracle2</code>, <code>maria / oracle3</code>, <code>noah / oracle4</code>, <code>iris / oracle5</code>.
+          </div>
+        </div>
+      `
+    };
+
+    const pageTitleEl = document.getElementById("page-title");
+    const pageSubtitleEl = document.getElementById("page-subtitle");
+    const pageContentEl = document.getElementById("page-content");
+    const topbarPillEl = document.getElementById("topbar-pill");
+    const logoutBtnEl = document.getElementById("logout-btn");
+
+    function setPublicChrome() {
+      topbarPillEl.textContent = "PUBLIC PORTAL";
+      logoutBtnEl.style.display = "none";
+      pageSubtitleEl.textContent = "OracleMind is a fictional AI lab for your investigation.";
+    }
+
+    function setInternalChrome(employee) {
+      topbarPillEl.textContent = "INTERNAL SESSION";
+      logoutBtnEl.style.display = "inline-block";
+      const emp = employees[employee];
+      pageSubtitleEl.textContent = emp ? emp.role : "";
+    }
+
+    const pageNames = {
+      about: "About Us",
+      mission: "Mission",
+      products: "Products",
+      contact: "Contact",
+      login: "Employee Login"
+    };
+
+    function setPage(page) {
+      pageTitleEl.textContent = pageNames[page];
+      pageContentEl.innerHTML = pages[page];
+      setPublicChrome();
+
+      if (page === "login") {
+        const btn = document.getElementById("login-button");
+        btn.addEventListener("click", handleLogin);
+        const pwdInput = document.getElementById("login-password");
+        pwdInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") handleLogin();
+        });
+      }
+    }
+
+    document.querySelectorAll(".nav button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const page = btn.dataset.page;
+        currentEmployee = null;
+        setPage(page);
+      });
+    });
+
+    logoutBtnEl.addEventListener("click", () => {
+      currentEmployee = null;
+      document.querySelectorAll(".nav button").forEach(btn => {
+        btn.classList.remove("active");
+        if (btn.dataset.page === "login") btn.classList.add("active");
+      });
+      setPage("login");
+    });
+
+    // ---------- LOGIN & EMPLOYEE VIEW ----------
+    let currentEmployee = null;
+    let currentPath = "/";
+
+    function handleLogin() {
+      const username = document.getElementById("login-username").value.trim().toLowerCase();
+      const password = document.getElementById("login-password").value.trim();
+      const errorEl = document.getElementById("login-error");
+
+      if (!employees[username] || employees[username].password !== password) {
+        errorEl.textContent = "Invalid credentials or unauthorized access.";
+        return;
+      }
+
+      currentEmployee = username;
+      currentPath = "/";
+      document.querySelectorAll(".nav button").forEach(btn => btn.classList.remove("active"));
+      renderEmployeeDashboard();
+    }
+
+    function renderEmployeeDashboard() {
+      const emp = employees[currentEmployee];
+      setInternalChrome(currentEmployee);
+      pageTitleEl.textContent = emp.displayName;
+
+      pageContentEl.innerHTML = `
+        <div class="employee-layout">
+          <div class="panel">
+            <div class="panel-title">
+              Inbox
+              <span class="small">Last sync: live</span>
+            </div>
+            <div class="panel-body" id="inbox-list">
+              ${emp.messages.map((m) => `
+                <div class="message">
+                  <div class="message-from">From: ${m.from}</div>
+                  <div class="message-subject">${m.subject}</div>
+                  <div class="message-body">${m.body}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">
+              Terminal
+              <span class="small" id="terminal-path">${currentPath}</span>
+            </div>
+            <div class="panel-body">
+              <div class="terminal-window">
+                <div class="terminal-header">
+                  <div class="term-dot"></div>
+                  <div class="term-dot"></div>
+                  <div class="term-dot"></div>
+                </div>
+                <div class="terminal-output" id="terminal-output"></div>
+                <div class="terminal-input-row">
+                  <span>$</span>
+                  <input id="terminal-input" autocomplete="off" spellcheck="false" />
+                </div>
+                <div class="terminal-help">
+                  Commands: <code>help</code>, <code>pwd</code>, <code>ls</code>, <code>cd &lt;dir&gt;</code>, <code>cat &lt;file&gt;</code>, <code>clear</code>.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      initTerminal();
+    }
+
+    function getNode(path, fsRoot) {
+      if (path === "/") return fsRoot["/"];
+      const parts = path.split("/").filter(Boolean);
+      let node = fsRoot["/"];
+      for (const part of parts) {
+        if (!node.children || !node.children[part]) return null;
+        node = node.children[part];
+      }
+      return node;
+    }
+
+    function initTerminal() {
+      const outputEl = document.getElementById("terminal-output");
+      const inputEl = document.getElementById("terminal-input");
+      const pathEl = document.getElementById("terminal-path");
+
+      function println(text = "") {
+        outputEl.textContent += text + "\n";
+        outputEl.scrollTop = outputEl.scrollHeight;
+      }
+
+      println("OracleMind Internal Terminal");
+      println("Type 'help' for a list of commands.\n");
+
+      inputEl.focus();
+
+      inputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const cmd = inputEl.value.trim();
+          inputEl.value = "";
+          handleCommand(cmd, println, pathEl);
+        }
+      });
+    }
+
+    function handleCommand(input, println, pathEl) {
+      const emp = employees[currentEmployee];
+      const fsRoot = emp.filesystem;
+
+      if (!input) return;
+      println("$ " + input);
+
+      const [cmd, ...args] = input.split(" ");
+
+      if (cmd === "help") {
+        println("Available commands:");
+        println("  help           Show this help");
+        println("  pwd            Show current path");
+        println("  ls             List files in current directory");
+        println("  cd <dir>       Change directory");
+        println("  cat <file>     Show file contents");
+        println("  clear          Clear screen");
+        println("");
+        return;
+      }
+
+      if (cmd === "pwd") {
+        println(currentPath);
+        return;
+      }
+
+      if (cmd === "clear") {
+        const outputEl = document.getElementById("terminal-output");
+        outputEl.textContent = "";
+        return;
+      }
+
+      const currNode = getNode(currentPath, fsRoot);
+      if (!currNode) {
+        println("Error: invalid path.");
+        return;
+      }
+
+      if (cmd === "ls") {
+        if (currNode.type !== "dir") {
+          println("Not a directory.");
+          return;
+        }
+        const names = Object.keys(currNode.children || {});
+        println(names.join("  "));
+        return;
+      }
+
+      if (cmd === "cd") {
+        const target = args[0];
+        if (!target) {
+          println("Usage: cd <dir>");
+          return;
+        }
+        if (target === "/") {
+          currentPath = "/";
+          pathEl.textContent = currentPath;
+          return;
+        }
+        if (target === "..") {
+          if (currentPath === "/") {
+            pathEl.textContent = currentPath;
+            return;
+          }
+          const parts = currentPath.split("/").filter(Boolean);
+          parts.pop();
+          currentPath = "/" + parts.join("/");
+          if (currentPath === "/") pathEl.textContent = "/";
+          else pathEl.textContent = currentPath;
+          return;
+        }
+        if (!currNode.children || !currNode.children[target] || currNode.children[target].type !== "dir") {
+          println("No such directory: " + target);
+          return;
+        }
+        currentPath = currentPath === "/" ? "/" + target : currentPath + "/" + target;
+        pathEl.textContent = currentPath;
+        return;
+      }
+
+      if (cmd === "cat") {
+        const fileName = args[0];
+        if (!fileName) {
+          println("Usage: cat <file>");
+          return;
+        }
+        if (!currNode.children || !currNode.children[fileName] || currNode.children[fileName].type !== "file") {
+          println("No such file: " + fileName);
+          return;
+        }
+        println(currNode.children[fileName].content);
+        return;
+      }
+
+      println(`Unknown command: ${cmd}`);
+    }
+
+    // Initial page
+    setPage("about");
+  </script>
+</body>
+</html>
